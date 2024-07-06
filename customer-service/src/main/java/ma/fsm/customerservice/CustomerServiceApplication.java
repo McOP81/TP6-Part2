@@ -1,7 +1,13 @@
 package ma.fsm.customerservice;
 
+import ma.fsm.customerservice.entities.Customer;
+import ma.fsm.customerservice.repository.CustomerRepository;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import java.util.List;
 
 @SpringBootApplication
 public class CustomerServiceApplication {
@@ -10,4 +16,22 @@ public class CustomerServiceApplication {
         SpringApplication.run(CustomerServiceApplication.class, args);
     }
 
+    @Bean
+    CommandLineRunner commandLineRunner(CustomerRepository customerRepository){
+         return args -> {
+             List<Customer> customerList = List.of(
+                     Customer.builder()
+                             .firstName("Hassan")
+                             .lastName("El kadah")
+                             .email("hassan@gmail.com")
+                             .build(),
+                     Customer.builder()
+                             .firstName("Rachid")
+                             .lastName("El kadah")
+                             .email("rachid@gmail.com")
+                             .build()
+             );
+             customerRepository.saveAll(customerList);
+        };
+    }
 }
