@@ -1,6 +1,8 @@
 package ma.fsm.accountservice.web;
 
+import ma.fsm.accountservice.clients.CustomerRestClient;
 import ma.fsm.accountservice.entities.BankAccount;
+import ma.fsm.accountservice.model.Customer;
 import ma.fsm.accountservice.repository.BankAccountRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,18 +13,26 @@ import java.util.List;
 @RestController
 public class AccountRestController {
     private BankAccountRepository accountRepository;
+    private CustomerRestClient customerRestClient;
 
-    public AccountRestController(BankAccountRepository accountRepository) {
+    public AccountRestController(BankAccountRepository accountRepository, CustomerRestClient customerRestClient) {
         this.accountRepository = accountRepository;
+        this.customerRestClient = customerRestClient;
     }
 
     @GetMapping("/accounts")
     public List<BankAccount> accountList(){
-        return accountRepository.findAll();
+        List<BankAccount> accountList= accountRepository.findAll();
+        accountList.forEach(acc->{
+            acc.setCustomer(customerRestClient.findCustomerById(acc.getCustomerId()));
+        });
+        return accountList;
     }
-
     @GetMapping("/accounts/{id}")
     public BankAccount bankAccountById(@PathVariable String id){
-        return accountRepository.findById(id).get();
+        BankAccount bankAccount= accountRepository.findById(id).get();
+        Customer customer=customerRestClient.findCustomerById(bankAccount.getCustomerId());
+        bankAccount.setCustomer(customer);
+        return bankAccount;
     }
 }
